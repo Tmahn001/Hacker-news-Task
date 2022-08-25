@@ -1,0 +1,31 @@
+{% extends 'news_api/base.html' %}
+{% block content %}
+<br>
+<p class="text-center">{{ news.title }}</p>
+
+<hr class="my-text">
+<div class="container-fluid ">
+
+    <div class="row">
+        <div class="col-6">
+            <p class="text-left">Author: {{ news.author }}</p>
+
+        </div>
+
+        {% if news.path == 'user' %}
+        <div class="col-6">
+            <p class="text-right"><a href="{% url 'post_edit' news.pk %}">Update</a></p>
+        </div>
+        {% else %}
+        <div class="col-6">
+            <p class="text-right"><a href="{% url 'edit_error' %}">Update</a></p>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+
+
+    <br>
+{% endblock content %}

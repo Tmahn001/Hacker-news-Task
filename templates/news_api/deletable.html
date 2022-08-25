@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delete Post</title>
+</head>
+<body>
+{% for i in items %}
+    {{ i.title }}
+    {{ i.category }}
+    <p><a href="{% url 'post_edit' i.pk %}">Edit</a></p>
+    <p><a href="{% url 'post_detail' i.pk %}">Details</a></p>
+    <br>
+{% endfor %}
+
+</body>
+</html>
