@@ -13,7 +13,7 @@ from .serializers import NewsSerializer
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
-from .models import NewsID, News
+from .models import NewsID, News, Comment
 from itertools import islice
 
 
@@ -26,7 +26,7 @@ class NewsViewset(viewsets.ModelViewSet):
         all_posts = {}
         print("synching")
 
-        top_100 = islice(data, 101)
+        top_100 = islice(data, 20)
         for item in top_100:
             url = f'https://hacker-news.firebaseio.com/v0/item/{item}.json?print=pretty'
             response = requests.get(url)
@@ -55,8 +55,24 @@ class NewsViewset(viewsets.ModelViewSet):
                         path = 'hackernews'
 
                     )
+                if 'kids' in data:
+                    print(data['kids'])
+                    for item in data['kids']:
+                        url = f'https://hacker-news.firebaseio.com/v0/item/{item}.json?print=pretty'
+                        response = requests.get(url)
+                        comment = response.json()
+                        comment_data = Comment(
+                            author_id = comment.get('parent'),
+                            text = comment.get('text'),
+                            by = comment.get('by'),
+                            time = comment.get('time'),
+
+                        )
+
+
 
                 news_data.save()
+                comment_data.save()
 
 
 
@@ -64,6 +80,7 @@ class NewsViewset(viewsets.ModelViewSet):
 
 def home(request):
     all_posts = News.objects.all().order_by('-time')
+    comments = Comment.objects.all()
     page = request.GET.get('page', 1)
 
     paginator = Paginator(all_posts, 10)
@@ -74,7 +91,13 @@ def home(request):
     except EmptyPage:
         posts = paginator.page(paginator.num_pages)
 
-    return render(request, 'news_api/home.html', {"posts": posts})
+    context ={
+        "posts": posts,
+        "comments": comments
+
+    }
+
+    return render(request, 'news_api/home.html', context)
 
 def story(request):
     all_posts = News.objects.all().order_by('-time')
@@ -105,9 +128,17 @@ class PostEdit(UpdateView):
     template_name = 'news_api/update_item.html'
     fields = ['title', 'post_url', 'category']
 
-class PostDetailView(DetailView):
-    model = News
-    template_name = 'news_api/post_detail.html'
+
+
+
+def detail_view(request, id):
+    context = {}
+
+    # add the dictionary during initialization
+    context["news"] = News.objects.get( hackernews_id = id )
+    context["comments"] = Comment.objects.all()
+
+    return render(request, 'news_api/post_detail.html', context)
 
 
 class PostDelete(DeleteView):

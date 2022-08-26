@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import NewsIdView, NewsItemView, home, story, userPost,\
-    PostEdit, PostDelete, PostDetailView, CreatePost, searchBar, ErrorView
+    PostEdit, PostDelete, CreatePost, searchBar, ErrorView, detail_view
 
 urlpatterns = [
 
@@ -11,8 +11,8 @@ urlpatterns = [
     path('', home, name='home'),
     path('story/', story, name='story'),
     path('user/', userPost, name='user-items'),
-    path('post/<int:pk>/', PostDetailView.as_view(), name='post_detail'),
-    path('post/<int:pk>/edit/', PostEdit.as_view(), name='post_edit'),
+    path('post/<id>/', detail_view, name='post_detail'),
+    path('post/<int:a>/edit/', PostEdit.as_view(), name='post_edit'),
     path('news/add', CreatePost.as_view(), name='add_post'),
     path('search/', searchBar, name='search'),
     path('error', ErrorView.as_view(), name='edit_error')
