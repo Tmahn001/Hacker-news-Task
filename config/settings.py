@@ -40,6 +40,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_cron',
     'apiapp.apps.ApiappConfig',
+
+    'django_celery_beat',
+
+
     'crispy_forms',
 
 ]
@@ -128,6 +132,7 @@ TIME_ZONE = 'Africa/Lagos'
 USE_I18N = True
 
 USE_TZ = False
+DJANGO_CELERY_BEAT_TZ_AWARE = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -141,3 +146,15 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+accept_content = ['json']
+
+
+CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+BROKER_URL = 'amqp://guest:guest@localhost//'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+result_accept_content = ['json']
+CELERY_RESULT_SERIALIZER = 'json'

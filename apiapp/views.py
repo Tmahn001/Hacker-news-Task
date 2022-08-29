@@ -1,7 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic.edit import UpdateView, DeleteView, CreateView
 from django.views.generic import ListView, DetailView, TemplateView
-import requests
 import json
 import requests
 from rest_framework.response import Response
@@ -13,13 +12,18 @@ from .serializers import NewsSerializer
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
+
 from .models import NewsID, News, Comment
 from itertools import islice
+from celery import Celery
+from celery.schedules import crontab
+from celery import shared_task
 
 
 # Create your views here.
 class NewsViewset(viewsets.ModelViewSet):
     def get_data(request):
+        headers = {'content-type': 'application/json'}
         url = f'https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty'
         response = requests.get(url)
         data = response.json()
@@ -68,11 +72,15 @@ class NewsViewset(viewsets.ModelViewSet):
                             time = comment.get('time'),
 
                         )
+                        comment_data.save()
 
 
 
                 news_data.save()
-                comment_data.save()
+
+@shared_task()
+def run_task():
+    NewsViewset.get_data(request=requests)
 
 
 
@@ -83,7 +91,7 @@ def home(request):
     comments = Comment.objects.all()
     page = request.GET.get('page', 1)
 
-    paginator = Paginator(all_posts, 10)
+    paginator = Paginator(all_posts, 20)
     try:
         posts = paginator.page(page)
     except PageNotAnInteger:
