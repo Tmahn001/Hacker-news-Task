@@ -37,10 +37,19 @@ class News(models.Model):
         return reverse('post_detail', args=[str(self.hackernews_id)])
 
 class Comment(models.Model):
-    author_id = models.BigIntegerField(blank=True, null=True, default=153636)
-    text = models.TextField(blank=True, null=True)
-    by = models.CharField(max_length=200, blank = True, null = True)
+    author_id = models.BigIntegerField(unique=True, primary_key=True)
+    text = models.TextField( blank=True, null=True)
+    by = models.CharField(max_length=200, default='user')
     time = UCDateTimeField(default=datetime.now)
+
+class ApiComment(models.Model):
+    author_id = models.BigIntegerField()
+    text = models.TextField( blank=True, null=True)
+    by = models.CharField(max_length=200, default='user')
+    time = UCDateTimeField(default=datetime.now)
+    comment_id = models.BigIntegerField(unique=True)
+
+
 
 
 
