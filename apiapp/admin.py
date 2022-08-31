@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from django.contrib import admin
-from .models import NewsID, News, Comment
+from .models import NewsID, News, Comment, ApiComment
 
 
 class HackerNewsIDAdmin(admin.ModelAdmin):
@@ -16,6 +16,12 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ('by', 'time') #these are the features to be listed
     list_display_links = ('by', 'time') #these are the features links
 
+class ApiCommentAdmin(admin.ModelAdmin):
+    list_display = ('by', 'time') #these are the features to be listed
+    list_display_links = ('by', 'time') #these are the features links
+
 admin.site.register(NewsID, HackerNewsIDAdmin)
 admin.site.register(News, NewsAdmin)
 admin.site.register(Comment, CommentAdmin)
+admin.site.register(ApiComment, ApiCommentAdmin)
+
