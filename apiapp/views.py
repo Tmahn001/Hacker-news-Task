@@ -13,7 +13,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 
-from .models import NewsID, News, Comment
+from .models import NewsID, News, Comment, ApiComment
 from itertools import islice
 from celery import Celery
 from celery.schedules import crontab
@@ -30,7 +30,7 @@ class NewsViewset(viewsets.ModelViewSet):
         all_posts = {}
         print("synching")
 
-        top_100 = islice(data, 20)
+        top_100 = islice(data, 100)
         for item in top_100:
             url = f'https://hacker-news.firebaseio.com/v0/item/{item}.json?print=pretty'
             response = requests.get(url)
@@ -65,11 +65,12 @@ class NewsViewset(viewsets.ModelViewSet):
                         url = f'https://hacker-news.firebaseio.com/v0/item/{item}.json?print=pretty'
                         response = requests.get(url)
                         comment = response.json()
-                        comment_data = Comment(
+                        comment_data = ApiComment(
                             author_id = comment.get('parent'),
                             text = comment.get('text'),
                             by = comment.get('by'),
                             time = comment.get('time'),
+                            comment_id = comment.get('id'),
 
                         )
                         comment_data.save()
@@ -144,7 +145,7 @@ def detail_view(request, id):
 
     # add the dictionary during initialization
     context["news"] = News.objects.get( hackernews_id = id )
-    context["comments"] = Comment.objects.all()
+    context["comments"] = ApiComment.objects.filter(author_id = id).all()
 
     return render(request, 'news_api/post_detail.html', context)
 
